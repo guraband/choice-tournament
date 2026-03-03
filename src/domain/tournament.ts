@@ -3,7 +3,7 @@ import { Item, Match, Round, Tournament } from "../types";
 type CreateTournamentParams = {
   topic: string;
   items: Item[];
-  round: 16 | 32;
+  round: 8 | 16 | 32;
   seed: number;
   shuffleEnabled: boolean;
 };
@@ -49,12 +49,12 @@ function createRoundMatches(round: Round, itemIds: string[]): Match[] {
   return matches;
 }
 
-export function getRoundSequence(startRound: 16 | 32): Round[] {
+export function getRoundSequence(startRound: 8 | 16 | 32): Round[] {
   return ROUND_ORDER.filter((round) => round <= startRound);
 }
 
 function resolveCursor(tournament: Tournament): Tournament["cursor"] {
-  const rounds = getRoundSequence(tournament.items.length as 16 | 32);
+  const rounds = getRoundSequence(tournament.items.length as 8 | 16 | 32);
 
   for (const round of rounds) {
     const matches = tournament.rounds[round] ?? [];
@@ -68,7 +68,7 @@ function resolveCursor(tournament: Tournament): Tournament["cursor"] {
 }
 
 function rebuildLaterRounds(tournament: Tournament, fromRound: Round): Tournament {
-  const rounds = getRoundSequence(tournament.items.length as 16 | 32);
+  const rounds = getRoundSequence(tournament.items.length as 8 | 16 | 32);
   const fromIndex = rounds.indexOf(fromRound);
 
   let nextRounds: Tournament["rounds"] = { ...tournament.rounds };

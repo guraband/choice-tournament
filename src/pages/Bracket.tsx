@@ -11,7 +11,7 @@ export function BracketPage() {
   }
 
   const itemMap = getItemMap(tournament.items);
-  const rounds = getRoundSequence(tournament.items.length as 16 | 32);
+  const rounds = getRoundSequence(tournament.items.length as 8 | 16 | 32);
 
   return (
     <main style={{ margin: "0 auto", maxWidth: 1080, padding: "2rem 1rem", display: "grid", gap: "1rem" }}>
@@ -20,7 +20,7 @@ export function BracketPage() {
       <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "1rem" }}>
         {rounds.map((round) => (
           <section key={round} style={{ border: "1px solid #ddd", borderRadius: 12, padding: "0.75rem" }}>
-            <h2 style={{ marginTop: 0 }}>{round}강</h2>
+            <h2 style={{ marginTop: 0 }}>{round === 4 ? "준결승" : round === 2 ? "결승" : `${round}강`}</h2>
             <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: "0.5rem" }}>
               {(tournament.rounds[round] ?? []).map((match, index) => {
                 const left = itemMap.get(match.leftItemId)?.name ?? "-";

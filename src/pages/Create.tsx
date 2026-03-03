@@ -5,7 +5,7 @@ import { useTournament } from "../state/TournamentContext";
 import { decodeShareDraft } from "../utils/share";
 import { resizeImageToBase64 } from "../utils/image";
 
-type RoundOption = 16 | 32;
+type RoundOption = 8 | 16 | 32;
 
 type DraftItem = {
   id: string;
@@ -130,7 +130,7 @@ export function CreatePage() {
   return (
     <main style={{ margin: "0 auto", maxWidth: 840, padding: "2rem 1rem" }}>
       <h1>새 토너먼트 만들기</h1>
-      <p>주제와 후보를 입력하고 16강/32강 옵션을 선택해 시작해 보세요.</p>
+      <p>주제와 후보를 입력하고 8강/16강/32강 옵션을 선택해 시작해 보세요.</p>
 
       <form onSubmit={handleSubmit} style={{ display: "grid", gap: "1rem" }}>
         <label style={{ display: "grid", gap: "0.5rem" }}>
@@ -162,6 +162,16 @@ export function CreatePage() {
 
         <fieldset style={{ display: "grid", gap: "0.5rem" }}>
           <legend>라운드 옵션</legend>
+          <label>
+            <input
+              type="radio"
+              name="round"
+              value="8"
+              checked={roundOption === 8}
+              onChange={() => setRoundOption(8)}
+            />
+            8강
+          </label>
           <label>
             <input
               type="radio"

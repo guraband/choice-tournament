@@ -2,7 +2,7 @@ type SharedDraft = {
   topic: string;
   items: string[];
   seed: number;
-  round: 16 | 32;
+  round: 8 | 16 | 32;
   shuffleEnabled: boolean;
 };
 
@@ -43,7 +43,7 @@ export function decodeShareDraft(raw: string): SharedDraft | null {
       return null;
     }
 
-    const round = candidate.round === 32 ? 32 : 16;
+    const round = candidate.round === 32 || candidate.round === 16 || candidate.round === 8 ? candidate.round : 16;
     const shuffleEnabled = typeof candidate.shuffleEnabled === "boolean" ? candidate.shuffleEnabled : true;
 
     return {
