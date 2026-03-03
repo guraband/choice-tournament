@@ -1,8 +1,9 @@
-export type Round = 16 | 8 | 4 | 2;
+export type Round = 32 | 16 | 8 | 4 | 2;
 
 export type Item = {
   id: string;
   name: string;
+  imageBase64?: string;
 };
 
 export type Match = {
@@ -21,7 +22,7 @@ export type Tournament = {
   createdAt: number;
   updatedAt: number;
   items: Item[];
-  rounds: Record<Round, Match[]>;
+  rounds: Partial<Record<Round, Match[]>>;
   cursor: {
     round: Round;
     matchIndex: number;
