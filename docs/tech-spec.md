@@ -95,7 +95,7 @@ type Tournament = {
   createdAt: number;
   updatedAt: number;
   items: Item[]; // length 16
-  rounds: Record<"r16" | "r8" | "r4" | "r2", Match[]>;
+  rounds: Record<16 | 8 | 4 | 2, Match[]>;
   cursor: {
     round: 16 | 8 | 4 | 2;
     matchIndex: number;
