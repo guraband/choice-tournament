@@ -19,14 +19,19 @@
 - 진행 중 데이터가 있으면 `이어하기` 노출
 
 ### B. Create
-- 입력: `topic`(필수), `items` 16개(필수, 1줄 1후보)
+- 입력: `topic`(필수), `items` 16개 또는 32개(필수, 1줄 1후보)
 - 검증:
   - 공백/빈 줄 제거
-  - 16개 미만/초과 시 에러
+  - 16개/32개 외 개수는 에러
   - 중복 후보는 경고(또는 suffix로 유니크 처리)
 - 옵션:
+  - 라운드 옵션(16강/32강)
   - 셔플(기본 ON)
   - 시드 고정(기본 ON 권장)
+- 이미지(선택): 후보별 로컬 이미지 첨부
+  - 브라우저에서 리사이즈: 긴 변 기준 최대 256px
+  - 저장 포맷: base64 문자열(data URL)
+  - 권장 인코딩: `image/webp` 품질 0.8 (미지원 브라우저는 JPEG 폴백)
 - `시작하기` 버튼은 검증 통과 시 활성화
 
 ### C. Match
@@ -55,8 +60,10 @@
 ## 3) 도메인 로직
 
 ### 3.1 토너먼트 규칙
-- 후보 수는 항상 16
-- 라운드 구성: 16강(8매치) → 8강(4매치) → 4강(2매치) → 결승(1매치)
+- 후보 수는 항상 16 또는 32
+- 라운드 구성:
+  - 32강 옵션: 32강(16매치) → 16강(8매치) → 8강(4매치) → 4강(2매치) → 결승(1매치)
+  - 16강 옵션: 16강(8매치) → 8강(4매치) → 4강(2매치) → 결승(1매치)
 - 결승 승자가 Champion
 
 ### 3.2 매치 생성
@@ -77,11 +84,12 @@
 type Item = {
   id: string;
   name: string;
+  imageBase64?: string; // 선택, data URL
 };
 
 type Match = {
   id: string;
-  round: 16 | 8 | 4 | 2;
+  round: 32 | 16 | 8 | 4 | 2;
   leftItemId: string;
   rightItemId: string;
   winnerItemId?: string;
@@ -94,14 +102,14 @@ type Tournament = {
   seed: number;
   createdAt: number;
   updatedAt: number;
-  items: Item[]; // length 16
-  rounds: Record<16 | 8 | 4 | 2, Match[]>;
+  items: Item[]; // length 16 | 32
+  rounds: Record<32 | 16 | 8 | 4 | 2, Match[]>;
   cursor: {
-    round: 16 | 8 | 4 | 2;
+    round: 32 | 16 | 8 | 4 | 2;
     matchIndex: number;
   };
   history: Array<{
-    round: 16 | 8 | 4 | 2;
+    round: 32 | 16 | 8 | 4 | 2;
     matchId: string;
     winnerItemId: string;
   }>;
@@ -111,6 +119,9 @@ type Tournament = {
 ### 4.2 localStorage
 - `choice-tournament:current`: 진행 중 토너먼트 1개
 - `choice-tournament:history`: 최근 결과(최대 20개)
+- 이미지 저장: `Item.imageBase64`에 base64 문자열(data URL) 저장
+  - 리사이즈 후 저장(최대 256x256)
+  - 용량 제한을 초과하면 이미지 품질을 추가 하향하거나 첨부 개수를 제한
 - 저장 시점:
   - 생성 직후
   - 매 선택 확정 시
@@ -125,6 +136,16 @@ type Tournament = {
   - 바로 시작 상태 진입 또는
   - Create 화면에 미리 채워진 상태로 진입
 - MVP 범위: **진행 상태 공유 제외**, **설정 공유만 지원**
+
+## 6) 로컬 이미지 처리 스펙
+- 입력: 사용자 로컬 파일(`image/*`)
+- 처리 순서:
+  1. `FileReader`로 파일 읽기
+  2. `canvas`에서 비율 유지 리사이즈(긴 변 256px)
+  3. `canvas.toDataURL("image/webp", 0.8)`로 base64 문자열 생성
+  4. webp 미지원 시 `image/jpeg` 폴백
+- 참고: 더 나은 저장 방법은 IndexedDB + Blob(URL.createObjectURL) 조합이지만,
+  MVP에서는 단순성을 위해 base64 문자열 저장 방식을 기본으로 채택
 
 ## 6) 디렉토리 구조 (예시)
 ```text
