@@ -1,7 +1,8 @@
-import { ChangeEvent, FormEvent, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 
 import { useTournament } from "../state/TournamentContext";
+import { decodeShareDraft } from "../utils/share";
 import { resizeImageToBase64 } from "../utils/image";
 
 type RoundOption = 16 | 32;
@@ -19,6 +20,7 @@ function createId(index: number, name: string) {
 }
 
 export function CreatePage() {
+  const location = useLocation();
   const navigate = useNavigate();
   const { createFromDraft } = useTournament();
   const [topic, setTopic] = useState("");
@@ -29,6 +31,24 @@ export function CreatePage() {
   const [seedInput, setSeedInput] = useState(() => String(Math.floor(Math.random() * 1_000_000)));
   const [itemImages, setItemImages] = useState<Record<string, string>>({});
   const [imageError, setImageError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const shareRaw = new URLSearchParams(location.search).get("share");
+    if (!shareRaw) {
+      return;
+    }
+
+    const sharedDraft = decodeShareDraft(shareRaw);
+    if (!sharedDraft) {
+      return;
+    }
+
+    setTopic(sharedDraft.topic);
+    setRawItems(sharedDraft.items.join("\n"));
+    setSeedInput(String(sharedDraft.seed));
+    setShuffleEnabled(sharedDraft.shuffleEnabled);
+    setRoundOption(sharedDraft.round);
+  }, [location.search]);
 
   const parsedItems = useMemo<DraftItem[]>(() => {
     return rawItems

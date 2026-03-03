@@ -1,7 +1,8 @@
-import { createContext, PropsWithChildren, useContext, useMemo, useState } from "react";
+import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from "react";
 
 import { createTournament, selectWinner as selectWinnerInTournament, undoSelection } from "../domain/tournament";
 import { Item, Tournament } from "../types";
+import { loadTournamentFromStorage, saveTournamentToStorage } from "../utils/storage";
 
 type CreateTournamentInput = {
   topic: string;
@@ -22,7 +23,11 @@ type TournamentContextValue = {
 const TournamentContext = createContext<TournamentContextValue | null>(null);
 
 export function TournamentProvider({ children }: PropsWithChildren) {
-  const [tournament, setTournament] = useState<Tournament | null>(null);
+  const [tournament, setTournament] = useState<Tournament | null>(() => loadTournamentFromStorage());
+
+  useEffect(() => {
+    saveTournamentToStorage(tournament);
+  }, [tournament]);
 
   const value = useMemo<TournamentContextValue>(
     () => ({
