@@ -2,10 +2,32 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 
 import { getItemMap, isTournamentComplete } from "../domain/tournament";
 import { useTournament } from "../state/TournamentContext";
+import { encodeShareDraft } from "../utils/share";
 
 export function ResultPage() {
   const navigate = useNavigate();
   const { tournament, reset } = useTournament();
+
+  const handleCopyShareLink = async () => {
+    if (!tournament) {
+      return;
+    }
+
+    const payload = encodeShareDraft({
+      topic: tournament.topic,
+      items: tournament.items.map((item) => item.name),
+      seed: tournament.seed,
+    });
+    const base = import.meta.env.BASE_URL;
+    const url = `${window.location.origin}${base}create?share=${payload}`;
+
+    try {
+      await navigator.clipboard.writeText(url);
+      window.alert("공유 링크가 클립보드에 복사되었습니다.");
+    } catch {
+      window.prompt("아래 링크를 복사해 공유해 주세요.", url);
+    }
+  };
 
   if (!tournament) {
     return <Navigate to="/create" replace />;
@@ -64,6 +86,9 @@ export function ResultPage() {
           다시하기
         </button>
         <Link to="/bracket">대진표 보기</Link>
+        <button type="button" onClick={() => void handleCopyShareLink()}>
+          공유 링크 복사
+        </button>
       </div>
     </main>
   );

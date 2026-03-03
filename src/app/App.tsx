@@ -6,7 +6,7 @@ import { TournamentProvider } from "../state/TournamentContext";
 export function App() {
   return (
     <TournamentProvider>
-      <BrowserRouter>
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
         <AppRouter />
       </BrowserRouter>
     </TournamentProvider>
