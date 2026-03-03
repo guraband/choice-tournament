@@ -115,7 +115,7 @@ export function MatchPage() {
         <section className="grid-auto">
           {[left, right].map((item, index) => (
             <button key={item.id} type="button" onClick={() => selectWinner(item.id)} className="match-choice">
-              <p className="helper-text" style={{ marginTop: 0 }}>
+              <p className="helper-text">
                 선택 {index + 1}
               </p>
               {item.imageBase64 ? (
