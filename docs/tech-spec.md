@@ -119,7 +119,7 @@ type Tournament = {
 ### 4.2 localStorage
 - `choice-tournament:current`: 진행 중 토너먼트 1개
 - `choice-tournament:history`: 최근 결과(최대 20개)
-- 이미지 저장: `Item.imageBase64`에 base64 문자열 저장
+- 이미지 저장: `Item.imageBase64`에 base64 문자열(data URL) 저장
   - 리사이즈 후 저장(최대 256x256)
   - 용량 제한을 초과하면 이미지 품질을 추가 하향하거나 첨부 개수를 제한
 - 저장 시점:
