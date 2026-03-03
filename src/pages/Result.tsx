@@ -1,8 +1,70 @@
+import { Link, Navigate, useNavigate } from "react-router-dom";
+
+import { getItemMap, isTournamentComplete } from "../domain/tournament";
+import { useTournament } from "../state/TournamentContext";
+
 export function ResultPage() {
+  const navigate = useNavigate();
+  const { tournament, reset } = useTournament();
+
+  if (!tournament) {
+    return <Navigate to="/create" replace />;
+  }
+
+  if (!isTournamentComplete(tournament)) {
+    return <Navigate to="/match" replace />;
+  }
+
+  const itemMap = getItemMap(tournament.items);
+  const finalMatch = tournament.rounds[2]?.[0];
+
+  if (!finalMatch?.winnerItemId) {
+    return <Navigate to="/match" replace />;
+  }
+
+  const champion = itemMap.get(finalMatch.winnerItemId);
+  const runnerUp =
+    finalMatch.leftItemId === finalMatch.winnerItemId
+      ? itemMap.get(finalMatch.rightItemId)
+      : itemMap.get(finalMatch.leftItemId);
+
+  const semifinalists = (tournament.rounds[4] ?? [])
+    .flatMap((match) => {
+      if (!match.winnerItemId) {
+        return [];
+      }
+
+      const loserId = match.leftItemId === match.winnerItemId ? match.rightItemId : match.leftItemId;
+      return [itemMap.get(loserId)?.name];
+    })
+    .filter((name): name is string => Boolean(name));
+
   return (
-    <main>
-      <h1>Result</h1>
-      <p>최종 우승 결과를 확인하는 화면입니다.</p>
+    <main style={{ margin: "0 auto", maxWidth: 720, padding: "2rem 1rem", display: "grid", gap: "1rem" }}>
+      <h1 style={{ margin: 0 }}>결과</h1>
+      <section style={{ border: "2px solid #333", borderRadius: 12, padding: "1rem" }}>
+        <p style={{ margin: 0, color: "#666" }}>Champion</p>
+        <h2 style={{ margin: "0.5rem 0 0" }}>{champion?.name ?? "-"}</h2>
+      </section>
+      <p style={{ margin: 0 }}>
+        <strong>Runner-up:</strong> {runnerUp?.name ?? "-"}
+      </p>
+      <p style={{ margin: 0 }}>
+        <strong>4강:</strong> {semifinalists.join(", ") || "-"}
+      </p>
+
+      <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
+        <button
+          type="button"
+          onClick={() => {
+            reset();
+            navigate("/create");
+          }}
+        >
+          다시하기
+        </button>
+        <Link to="/bracket">대진표 보기</Link>
+      </div>
     </main>
   );
 }
