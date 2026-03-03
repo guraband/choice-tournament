@@ -46,8 +46,8 @@ export function CreatePage() {
     setTopic(sharedDraft.topic);
     setRawItems(sharedDraft.items.join("\n"));
     setSeedInput(String(sharedDraft.seed));
-    setShuffleEnabled(true);
-    setRoundOption(sharedDraft.items.length === 32 ? 32 : 16);
+    setShuffleEnabled(sharedDraft.shuffleEnabled);
+    setRoundOption(sharedDraft.round);
   }, [location.search]);
 
   const parsedItems = useMemo<DraftItem[]>(() => {

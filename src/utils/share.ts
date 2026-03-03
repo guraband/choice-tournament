@@ -2,6 +2,8 @@ type SharedDraft = {
   topic: string;
   items: string[];
   seed: number;
+  round: 16 | 32;
+  shuffleEnabled: boolean;
 };
 
 function toBase64Url(input: string): string {
@@ -27,23 +29,31 @@ export function decodeShareDraft(raw: string): SharedDraft | null {
   try {
     const parsed: unknown = JSON.parse(fromBase64Url(raw));
 
+    if (typeof parsed !== "object" || parsed === null) {
+      return null;
+    }
+
+    const candidate = parsed as Partial<SharedDraft>;
+
     if (
-      typeof parsed !== "object" ||
-      parsed === null ||
-      typeof (parsed as SharedDraft).topic !== "string" ||
-      !Array.isArray((parsed as SharedDraft).items) ||
-      typeof (parsed as SharedDraft).seed !== "number"
+      typeof candidate.topic !== "string" ||
+      !Array.isArray(candidate.items) ||
+      typeof candidate.seed !== "number"
     ) {
       return null;
     }
 
+    const round = candidate.round === 32 ? 32 : 16;
+    const shuffleEnabled = typeof candidate.shuffleEnabled === "boolean" ? candidate.shuffleEnabled : true;
+
     return {
-      topic: (parsed as SharedDraft).topic,
-      items: (parsed as SharedDraft).items.filter((item): item is string => typeof item === "string"),
-      seed: (parsed as SharedDraft).seed,
+      topic: candidate.topic,
+      items: candidate.items.filter((item): item is string => typeof item === "string"),
+      seed: candidate.seed,
+      round,
+      shuffleEnabled,
     };
   } catch {
     return null;
   }
 }
-

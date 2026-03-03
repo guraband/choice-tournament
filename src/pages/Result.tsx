@@ -17,6 +17,8 @@ export function ResultPage() {
       topic: tournament.topic,
       items: tournament.items.map((item) => item.name),
       seed: tournament.seed,
+      round: tournament.items.length === 32 ? 32 : 16,
+      shuffleEnabled: false,
     });
     const base = import.meta.env.BASE_URL;
     const url = `${window.location.origin}${base}create?share=${payload}`;
