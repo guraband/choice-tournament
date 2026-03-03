@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 
-import { getCurrentMatch, getItemMap, getRoundSequence, isTournamentComplete } from "../domain/tournament";
+import { getCurrentMatch, getItemMap, isTournamentComplete } from "../domain/tournament";
 import { useTournament } from "../state/TournamentContext";
 
 export function MatchPage() {
@@ -56,8 +56,7 @@ export function MatchPage() {
     return <Navigate to="/create" replace />;
   }
 
-  const rounds = getRoundSequence(tournament.items.length as 16 | 32);
-  const totalMatchCount = rounds.reduce((sum, round) => sum + (tournament.rounds[round]?.length ?? 0), 0);
+  const totalMatchCount = tournament.items.length - 1;
   const decidedCount = tournament.history.length;
   const progress = totalMatchCount === 0 ? 0 : Math.round((decidedCount / totalMatchCount) * 100);
 

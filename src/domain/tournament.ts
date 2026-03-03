@@ -64,34 +64,36 @@ function resolveCursor(tournament: Tournament): Tournament["cursor"] {
     }
   }
 
-  return { round: 2, matchIndex: 1 };
+  return { round: 2, matchIndex: 0 };
 }
 
 function rebuildLaterRounds(tournament: Tournament, fromRound: Round): Tournament {
   const rounds = getRoundSequence(tournament.items.length as 16 | 32);
   const fromIndex = rounds.indexOf(fromRound);
 
-  let nextTournament = { ...tournament };
+  let nextRounds: Tournament["rounds"] = { ...tournament.rounds };
 
   for (let index = fromIndex; index < rounds.length - 1; index += 1) {
     const currentRound = rounds[index];
     const nextRound = rounds[index + 1];
-    const currentMatches = nextTournament.rounds[currentRound] ?? [];
+    const currentMatches = nextRounds[currentRound] ?? [];
 
     if (currentMatches.some((match) => !match.winnerItemId)) {
-      delete nextTournament.rounds[nextRound];
+      delete nextRounds[nextRound];
       continue;
     }
 
     const winnerIds = currentMatches.map((match) => match.winnerItemId!) as string[];
-    nextTournament = {
-      ...nextTournament,
-      rounds: {
-        ...nextTournament.rounds,
-        [nextRound]: createRoundMatches(nextRound, winnerIds),
-      },
+    nextRounds = {
+      ...nextRounds,
+      [nextRound]: createRoundMatches(nextRound, winnerIds),
     };
   }
+
+  const nextTournament: Tournament = {
+    ...tournament,
+    rounds: nextRounds,
+  };
 
   return {
     ...nextTournament,
