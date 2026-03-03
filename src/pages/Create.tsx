@@ -1,5 +1,7 @@
 import { ChangeEvent, FormEvent, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
+import { useTournament } from "../state/TournamentContext";
 import { resizeImageToBase64 } from "../utils/image";
 
 type RoundOption = 16 | 32;
@@ -17,6 +19,8 @@ function createId(index: number, name: string) {
 }
 
 export function CreatePage() {
+  const navigate = useNavigate();
+  const { createFromDraft } = useTournament();
   const [topic, setTopic] = useState("");
   const [rawItems, setRawItems] = useState("");
   const [roundOption, setRoundOption] = useState<RoundOption>(16);
@@ -92,16 +96,15 @@ export function CreatePage() {
       return;
     }
 
-    const payload = {
+    createFromDraft({
       topic: topic.trim(),
       round: roundOption,
       shuffleEnabled,
-      seedFixed,
       seed: Number(seedInput) || 0,
       items: parsedItems,
-    };
+    });
 
-    window.alert(`토너먼트 시작 데이터 준비 완료:\n${JSON.stringify(payload, null, 2)}`);
+    navigate("/match");
   };
 
   return (

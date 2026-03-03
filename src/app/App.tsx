@@ -1,11 +1,14 @@
 import { BrowserRouter } from "react-router-dom";
 
 import { AppRouter } from "../routes/AppRouter";
+import { TournamentProvider } from "../state/TournamentContext";
 
 export function App() {
   return (
-    <BrowserRouter>
-      <AppRouter />
-    </BrowserRouter>
+    <TournamentProvider>
+      <BrowserRouter>
+        <AppRouter />
+      </BrowserRouter>
+    </TournamentProvider>
   );
 }
