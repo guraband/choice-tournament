@@ -7,7 +7,7 @@ import { loadTournamentFromStorage, saveTournamentToStorage } from "../utils/sto
 type CreateTournamentInput = {
   topic: string;
   items: Item[];
-  round: 16 | 32;
+  round: 8 | 16 | 32;
   seed: number;
   shuffleEnabled: boolean;
 };

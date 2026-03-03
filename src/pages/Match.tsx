@@ -1,12 +1,27 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 
 import { getCurrentMatch, getItemMap, isTournamentComplete } from "../domain/tournament";
 import { useTournament } from "../state/TournamentContext";
 
+
+const ROUND_LABEL: Record<number, string> = {
+  32: "32강",
+  16: "16강",
+  8: "8강",
+  4: "준결승",
+  2: "결승",
+};
+
+function getRoundLabel(round: number) {
+  return ROUND_LABEL[round] ?? `${round}강`;
+}
+
 export function MatchPage() {
   const navigate = useNavigate();
   const { tournament, selectWinner, undo } = useTournament();
+  const [roundBanner, setRoundBanner] = useState<string | null>(null);
+  const previousRoundRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!tournament) {
@@ -34,6 +49,24 @@ export function MatchPage() {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [selectWinner, tournament, undo]);
+
+  useEffect(() => {
+    if (!tournament) {
+      previousRoundRef.current = null;
+      return;
+    }
+
+    const currentRound = tournament.cursor.round;
+    if (previousRoundRef.current === currentRound) {
+      return;
+    }
+
+    previousRoundRef.current = currentRound;
+    setRoundBanner(getRoundLabel(currentRound));
+
+    const timeoutId = window.setTimeout(() => setRoundBanner(null), 1200);
+    return () => window.clearTimeout(timeoutId);
+  }, [tournament]);
 
   if (!tournament) {
     return <Navigate to="/create" replace />;
@@ -65,7 +98,7 @@ export function MatchPage() {
       <header style={{ display: "grid", gap: "0.4rem" }}>
         <h1 style={{ margin: 0 }}>{tournament.topic}</h1>
         <p style={{ margin: 0 }}>
-          현재 라운드: <strong>{match.round}강</strong> · 진행률: <strong>{progress}%</strong> ({decidedCount}/{totalMatchCount})
+          현재 라운드: <strong>{getRoundLabel(match.round)}</strong> · 진행률: <strong>{progress}%</strong> ({decidedCount}/{totalMatchCount})
         </p>
         <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
           <button type="button" onClick={undo} disabled={tournament.history.length === 0}>
@@ -112,6 +145,34 @@ export function MatchPage() {
       </section>
 
       <p style={{ margin: 0, color: "#666" }}>단축키: 1/2, ←/→, Backspace(되돌리기)</p>
+      {roundBanner ? (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            display: "grid",
+            placeItems: "center",
+            background: "rgba(0, 0, 0, 0.72)",
+            color: "#fff",
+            fontSize: "clamp(3rem, 15vw, 9rem)",
+            fontWeight: 800,
+            letterSpacing: "0.04em",
+            zIndex: 9999,
+            pointerEvents: "none",
+            animation: "round-banner-fade 1.2s ease forwards",
+          }}
+        >
+          {roundBanner}
+        </div>
+      ) : null}
+      <style>
+        {`@keyframes round-banner-fade {
+          0% { opacity: 0; transform: scale(0.92); }
+          15% { opacity: 1; transform: scale(1); }
+          70% { opacity: 1; transform: scale(1.02); }
+          100% { opacity: 0; transform: scale(1.08); }
+        }`}
+      </style>
     </main>
   );
 }
