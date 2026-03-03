@@ -187,7 +187,7 @@ export function CreatePage() {
             <label>
               <input type="checkbox" checked={seedFixed} onChange={(event) => setSeedFixed(event.target.checked)} /> 시드 고정
             </label>
-            <label className="field" style={{ maxWidth: 240 }}>
+            <label className="field seed-input-field">
               <span>시드 값</span>
               <input
                 type="number"
