@@ -4,7 +4,6 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { getCurrentMatch, getItemMap, isTournamentComplete } from "../domain/tournament";
 import { useTournament } from "../state/TournamentContext";
 
-
 const ROUND_LABEL: Record<number, string> = {
   32: "32강",
   16: "16강",
@@ -94,57 +93,46 @@ export function MatchPage() {
   const progress = totalMatchCount === 0 ? 0 : Math.round((decidedCount / totalMatchCount) * 100);
 
   return (
-    <main style={{ margin: "0 auto", maxWidth: 960, padding: "2rem 1rem", display: "grid", gap: "1rem" }}>
-      <header style={{ display: "grid", gap: "0.4rem" }}>
-        <h1 style={{ margin: 0 }}>{tournament.topic}</h1>
-        <p style={{ margin: 0 }}>
-          현재 라운드: <strong>{getRoundLabel(match.round)}</strong> · 진행률: <strong>{progress}%</strong> ({decidedCount}/{totalMatchCount})
-        </p>
-        <div style={{ display: "flex", gap: "0.5rem", flexWrap: "wrap" }}>
-          <button type="button" onClick={undo} disabled={tournament.history.length === 0}>
-            되돌리기 (Backspace)
-          </button>
-          <button type="button" onClick={() => navigate("/bracket")}>대진표 보기</button>
-          <Link to="/result">결과 화면</Link>
-        </div>
-      </header>
+    <main className="page stack">
+      <section className="page-card stack" style={{ padding: "1.5rem" }}>
+        <header className="stack" style={{ gap: "0.4rem" }}>
+          <h1 style={{ margin: 0 }}>{tournament.topic}</h1>
+          <p className="subtitle">
+            현재 라운드: <strong>{getRoundLabel(match.round)}</strong> · 진행률: <strong>{progress}%</strong> ({decidedCount}/
+            {totalMatchCount})
+          </p>
+          <div className="actions">
+            <button type="button" onClick={undo} disabled={tournament.history.length === 0} className="secondary">
+              되돌리기 (Backspace)
+            </button>
+            <button type="button" onClick={() => navigate("/bracket")} className="secondary">
+              대진표 보기
+            </button>
+            <Link to="/result">결과 화면</Link>
+          </div>
+        </header>
 
-      <section
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
-          gap: "1rem",
-        }}
-      >
-        {[left, right].map((item, index) => (
-          <button
-            key={item.id}
-            type="button"
-            onClick={() => selectWinner(item.id)}
-            style={{
-              minHeight: 260,
-              border: "1px solid #ddd",
-              borderRadius: 12,
-              padding: "1rem",
-              textAlign: "left",
-              background: "#fff",
-              cursor: "pointer",
-            }}
-          >
-            <p style={{ marginTop: 0, color: "#666" }}>선택 {index + 1}</p>
-            {item.imageBase64 ? (
-              <img
-                src={item.imageBase64}
-                alt={item.name}
-                style={{ width: "100%", maxHeight: 180, objectFit: "cover", borderRadius: 8 }}
-              />
-            ) : null}
-            <h2 style={{ marginBottom: 0 }}>{item.name}</h2>
-          </button>
-        ))}
+        <section className="grid-auto">
+          {[left, right].map((item, index) => (
+            <button key={item.id} type="button" onClick={() => selectWinner(item.id)} className="match-choice">
+              <p className="helper-text">
+                선택 {index + 1}
+              </p>
+              {item.imageBase64 ? (
+                <img
+                  src={item.imageBase64}
+                  alt={item.name}
+                  style={{ width: "100%", maxHeight: 180, objectFit: "cover", borderRadius: 8 }}
+                />
+              ) : null}
+              <h2 style={{ marginBottom: 0 }}>{item.name}</h2>
+            </button>
+          ))}
+        </section>
+
+        <p className="helper-text">단축키: 1/2, ←/→, Backspace(되돌리기)</p>
       </section>
 
-      <p style={{ margin: 0, color: "#666" }}>단축키: 1/2, ←/→, Backspace(되돌리기)</p>
       {roundBanner ? (
         <div
           style={{

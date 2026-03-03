@@ -2,8 +2,8 @@ import { ChangeEvent, FormEvent, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { useTournament } from "../state/TournamentContext";
-import { decodeShareDraft } from "../utils/share";
 import { resizeImageToBase64 } from "../utils/image";
+import { decodeShareDraft } from "../utils/share";
 
 type RoundOption = 8 | 16 | 32;
 
@@ -128,131 +128,110 @@ export function CreatePage() {
   };
 
   return (
-    <main style={{ margin: "0 auto", maxWidth: 840, padding: "2rem 1rem" }}>
-      <h1>새 토너먼트 만들기</h1>
-      <p>주제와 후보를 입력하고 8강/16강/32강 옵션을 선택해 시작해 보세요.</p>
+    <main className="page stack">
+      <section className="page-card" style={{ padding: "1.5rem" }}>
+        <h1 className="title">새 토너먼트 만들기</h1>
+        <p className="subtitle">주제와 후보를 입력하고 8강/16강/32강 옵션을 선택해 시작해 보세요.</p>
 
-      <form onSubmit={handleSubmit} style={{ display: "grid", gap: "1rem" }}>
-        <label style={{ display: "grid", gap: "0.5rem" }}>
-          <span>주제</span>
-          <input
-            value={topic}
-            onChange={(event) => setTopic(event.target.value)}
-            placeholder="예: 오늘 점심 메뉴"
-          />
-        </label>
-        {topicError ? <p style={{ color: "crimson", margin: 0 }}>{topicError}</p> : null}
-
-        <label style={{ display: "grid", gap: "0.5rem" }}>
-          <span>후보 목록 (1줄 1후보)</span>
-          <textarea
-            value={rawItems}
-            onChange={(event) => setRawItems(event.target.value)}
-            rows={12}
-            placeholder={INITIAL_ITEMS_PLACEHOLDER}
-          />
-        </label>
-        <p style={{ margin: 0 }}>정제된 후보 수: {parsedItems.length}개</p>
-        {countError ? <p style={{ color: "crimson", margin: 0 }}>{countError}</p> : null}
-        {duplicateNames.length > 0 ? (
-          <p style={{ color: "darkorange", margin: 0 }}>
-            중복 후보가 있습니다: {duplicateNames.join(", ")} (진행은 가능하지만 구분이 어려울 수 있습니다)
-          </p>
-        ) : null}
-
-        <fieldset style={{ display: "grid", gap: "0.5rem" }}>
-          <legend>라운드 옵션</legend>
-          <label>
+        <form onSubmit={handleSubmit} className="form" style={{ marginTop: "1rem" }}>
+          <label className="field">
+            <span>주제</span>
             <input
-              type="radio"
-              name="round"
-              value="8"
-              checked={roundOption === 8}
-              onChange={() => setRoundOption(8)}
-            />
-            8강
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="round"
-              value="16"
-              checked={roundOption === 16}
-              onChange={() => setRoundOption(16)}
-            />
-            16강
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="round"
-              value="32"
-              checked={roundOption === 32}
-              onChange={() => setRoundOption(32)}
-            />
-            32강
-          </label>
-        </fieldset>
-
-        <fieldset style={{ display: "grid", gap: "0.5rem" }}>
-          <legend>셔플 / 시드 설정</legend>
-          <label>
-            <input
-              type="checkbox"
-              checked={shuffleEnabled}
-              onChange={(event) => setShuffleEnabled(event.target.checked)}
-            />
-            셔플 사용
-          </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={seedFixed}
-              onChange={(event) => setSeedFixed(event.target.checked)}
-            />
-            시드 고정
-          </label>
-          <label style={{ display: "grid", gap: "0.25rem", maxWidth: 240 }}>
-            <span>시드 값</span>
-            <input
-              type="number"
-              value={seedInput}
-              onChange={(event) => setSeedInput(event.target.value)}
-              disabled={!seedFixed}
+              value={topic}
+              onChange={(event) => setTopic(event.target.value)}
+              placeholder="예: 오늘 점심 메뉴"
             />
           </label>
-        </fieldset>
+          {topicError ? <p className="error-text">{topicError}</p> : null}
 
-        <section style={{ display: "grid", gap: "0.5rem" }}>
-          <h2 style={{ marginBottom: 0 }}>후보별 이미지 첨부 (선택)</h2>
-          <p style={{ margin: 0 }}>업로드 시 최대 256x256으로 리사이즈되어 base64로 저장됩니다.</p>
-          {imageError ? <p style={{ color: "crimson", margin: 0 }}>{imageError}</p> : null}
+          <label className="field">
+            <span>후보 목록 (1줄 1후보)</span>
+            <textarea
+              value={rawItems}
+              onChange={(event) => setRawItems(event.target.value)}
+              rows={12}
+              placeholder={INITIAL_ITEMS_PLACEHOLDER}
+            />
+          </label>
+          <p className="helper-text">정제된 후보 수: {parsedItems.length}개</p>
+          {countError ? <p className="error-text">{countError}</p> : null}
+          {duplicateNames.length > 0 ? (
+            <p className="warning-text">
+              중복 후보가 있습니다: {duplicateNames.join(", ")} (진행은 가능하지만 구분이 어려울 수 있습니다)
+            </p>
+          ) : null}
 
-          {parsedItems.length === 0 ? (
-            <p style={{ margin: 0 }}>후보를 입력하면 이미지 첨부 영역이 표시됩니다.</p>
-          ) : (
-            <ul style={{ listStyle: "none", margin: 0, padding: 0, display: "grid", gap: "0.5rem" }}>
-              {parsedItems.map((item) => (
-                <li key={item.id} style={{ border: "1px solid #ddd", borderRadius: 8, padding: "0.75rem" }}>
-                  <strong>{item.name}</strong>
-                  <div style={{ marginTop: "0.5rem", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(event) => void handleImageChange(event, item.id)}
-                    />
-                    {item.imageBase64 ? <span>첨부 완료</span> : <span>미첨부</span>}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
+          <fieldset className="stack">
+            <legend>라운드 옵션</legend>
+            <label>
+              <input type="radio" name="round" value="8" checked={roundOption === 8} onChange={() => setRoundOption(8)} /> 8강
+            </label>
+            <label>
+              <input type="radio" name="round" value="16" checked={roundOption === 16} onChange={() => setRoundOption(16)} /> 16강
+            </label>
+            <label>
+              <input type="radio" name="round" value="32" checked={roundOption === 32} onChange={() => setRoundOption(32)} /> 32강
+            </label>
+          </fieldset>
 
-        <button type="submit" disabled={hasValidationError} style={{ maxWidth: 180 }}>
-          시작하기
-        </button>
-      </form>
+          <fieldset className="stack">
+            <legend>셔플 / 시드 설정</legend>
+            <label>
+              <input
+                type="checkbox"
+                checked={shuffleEnabled}
+                onChange={(event) => setShuffleEnabled(event.target.checked)}
+              />{" "}
+              셔플 사용
+            </label>
+            <label>
+              <input type="checkbox" checked={seedFixed} onChange={(event) => setSeedFixed(event.target.checked)} /> 시드 고정
+            </label>
+            <label className="field seed-input-field">
+              <span>시드 값</span>
+              <input
+                type="number"
+                value={seedInput}
+                onChange={(event) => setSeedInput(event.target.value)}
+                disabled={!seedFixed}
+              />
+            </label>
+          </fieldset>
+
+          <section className="stack">
+            <h2 style={{ margin: 0 }}>후보별 이미지 첨부 (선택)</h2>
+            <p className="helper-text">업로드 시 최대 256x256으로 리사이즈되어 base64로 저장됩니다.</p>
+            {imageError ? <p className="error-text">{imageError}</p> : null}
+
+            {parsedItems.length === 0 ? (
+              <p className="helper-text">후보를 입력하면 이미지 첨부 영역이 표시됩니다.</p>
+            ) : (
+              <ul className="preview-list">
+                {parsedItems.map((item) => (
+                  <li key={item.id} className="preview-item">
+                    <strong>{item.name}</strong>
+                    <div className="actions" style={{ marginTop: "0.5rem" }}>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(event) => void handleImageChange(event, item.id)}
+                        style={{ maxWidth: 260 }}
+                      />
+                      <span className="helper-text">{item.imageBase64 ? "첨부 완료" : "미첨부"}</span>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <div className="actions">
+            <button type="submit" disabled={hasValidationError} style={{ maxWidth: 180 }}>
+              시작하기
+            </button>
+          </div>
+        </form>
+      </section>
     </main>
   );
 }

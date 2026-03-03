@@ -64,34 +64,36 @@ export function ResultPage() {
     .filter((name): name is string => Boolean(name));
 
   return (
-    <main style={{ margin: "0 auto", maxWidth: 720, padding: "2rem 1rem", display: "grid", gap: "1rem" }}>
-      <h1 style={{ margin: 0 }}>결과</h1>
-      <section style={{ border: "2px solid #333", borderRadius: 12, padding: "1rem" }}>
-        <p style={{ margin: 0, color: "#666" }}>Champion</p>
-        <h2 style={{ margin: "0.5rem 0 0" }}>{champion?.name ?? "-"}</h2>
-      </section>
-      <p style={{ margin: 0 }}>
-        <strong>Runner-up:</strong> {runnerUp?.name ?? "-"}
-      </p>
-      <p style={{ margin: 0 }}>
-        <strong>4강:</strong> {semifinalists.join(", ") || "-"}
-      </p>
+    <main className="page stack" style={{ maxWidth: 720 }}>
+      <section className="page-card stack" style={{ padding: "1.5rem" }}>
+        <h1 className="title">결과</h1>
+        <section className="preview-item" style={{ borderWidth: 2, borderColor: "#4338ca" }}>
+          <p className="helper-text">Champion</p>
+          <h2 style={{ margin: "0.5rem 0 0" }}>{champion?.name ?? "-"}</h2>
+        </section>
+        <p style={{ margin: 0 }}>
+          <strong>Runner-up:</strong> {runnerUp?.name ?? "-"}
+        </p>
+        <p style={{ margin: 0 }}>
+          <strong>4강:</strong> {semifinalists.join(", ") || "-"}
+        </p>
 
-      <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-        <button
-          type="button"
-          onClick={() => {
-            reset();
-            navigate("/create");
-          }}
-        >
-          다시하기
-        </button>
-        <Link to="/bracket">대진표 보기</Link>
-        <button type="button" onClick={() => void handleCopyShareLink()}>
-          공유 링크 복사
-        </button>
-      </div>
+        <div className="actions">
+          <button
+            type="button"
+            onClick={() => {
+              reset();
+              navigate("/create");
+            }}
+          >
+            다시하기
+          </button>
+          <Link to="/bracket">대진표 보기</Link>
+          <button type="button" onClick={() => void handleCopyShareLink()} className="secondary">
+            공유 링크 복사
+          </button>
+        </div>
+      </section>
     </main>
   );
 }
