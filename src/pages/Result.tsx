@@ -88,7 +88,9 @@ export function ResultPage() {
           >
             다시하기
           </button>
-          <Link to="/bracket">대진표 보기</Link>
+          <Link to="/bracket" className="button-link secondary">
+            대진표 보기
+          </Link>
           <button type="button" onClick={() => void handleCopyShareLink()} className="secondary">
             공유 링크 복사
           </button>

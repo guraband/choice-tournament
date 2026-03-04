@@ -172,7 +172,7 @@ button.secondary,
   border: 1px solid #dbe3f4;
   border-radius: 14px;
   padding: 1rem;
-  text-align: left;
+  text-align: center;
   background: linear-gradient(180deg, #ffffff, #f8fbff);
   color: #111827;
 }
