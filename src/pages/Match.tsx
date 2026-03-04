@@ -20,7 +20,46 @@ export function MatchPage() {
   const navigate = useNavigate();
   const { tournament, selectWinner, undo } = useTournament();
   const [roundBanner, setRoundBanner] = useState<string | null>(null);
+  const [winnerBanner, setWinnerBanner] = useState<string | null>(null);
+  const [isResultRedirectReady, setIsResultRedirectReady] = useState(false);
   const previousRoundRef = useRef<number | null>(null);
+  const wasCompleteRef = useRef(false);
+
+  useEffect(() => {
+    if (!tournament) {
+      wasCompleteRef.current = false;
+      setWinnerBanner(null);
+      setIsResultRedirectReady(false);
+      return;
+    }
+
+    const complete = isTournamentComplete(tournament);
+    if (complete && !wasCompleteRef.current) {
+      const itemMap = getItemMap(tournament.items);
+      const finalMatch = tournament.rounds[2]?.[0];
+      const winnerName = finalMatch?.winnerItemId ? itemMap.get(finalMatch.winnerItemId)?.name : null;
+
+      if (!winnerName) {
+        setIsResultRedirectReady(true);
+      } else {
+        setWinnerBanner(winnerName);
+        setIsResultRedirectReady(false);
+
+        const timeoutId = window.setTimeout(() => {
+          setWinnerBanner(null);
+          setIsResultRedirectReady(true);
+        }, 1400);
+        return () => window.clearTimeout(timeoutId);
+      }
+    }
+
+    if (!complete) {
+      setWinnerBanner(null);
+      setIsResultRedirectReady(false);
+    }
+
+    wasCompleteRef.current = complete;
+  }, [tournament]);
 
   useEffect(() => {
     if (!tournament) {
@@ -72,7 +111,44 @@ export function MatchPage() {
   }
 
   if (isTournamentComplete(tournament)) {
-    return <Navigate to="/result" replace />;
+    if (isResultRedirectReady && !winnerBanner) {
+      return <Navigate to="/result" replace />;
+    }
+
+    return (
+      <main className="page stack">
+        {winnerBanner ? (
+          <div
+            style={{
+              position: "fixed",
+              inset: 0,
+              display: "grid",
+              placeItems: "center",
+              background: "rgba(0, 0, 0, 0.78)",
+              color: "#fff",
+              fontSize: "clamp(2.4rem, 10vw, 6.5rem)",
+              fontWeight: 800,
+              letterSpacing: "0.03em",
+              textAlign: "center",
+              zIndex: 10000,
+              pointerEvents: "none",
+              animation: "winner-banner-fade 1.4s ease forwards",
+              padding: "1rem",
+            }}
+          >
+            {winnerBanner}
+          </div>
+        ) : null}
+        <style>
+          {`@keyframes winner-banner-fade {
+            0% { opacity: 0; transform: scale(0.9); }
+            15% { opacity: 1; transform: scale(1); }
+            75% { opacity: 1; transform: scale(1.04); }
+            100% { opacity: 0; transform: scale(1.08); }
+          }`}
+        </style>
+      </main>
+    );
   }
 
   const match = getCurrentMatch(tournament);
@@ -117,9 +193,7 @@ export function MatchPage() {
         <section className="grid-auto">
           {[left, right].map((item, index) => (
             <button key={item.id} type="button" onClick={() => selectWinner(item.id)} className="match-choice">
-              <p className="helper-text">
-                선택 {index + 1}
-              </p>
+              <p className="helper-text">선택 {index + 1}</p>
               {item.imageBase64 ? (
                 <img
                   src={item.imageBase64}
@@ -155,11 +229,40 @@ export function MatchPage() {
           {roundBanner}
         </div>
       ) : null}
+      {winnerBanner ? (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            display: "grid",
+            placeItems: "center",
+            background: "rgba(0, 0, 0, 0.78)",
+            color: "#fff",
+            fontSize: "clamp(2.4rem, 10vw, 6.5rem)",
+            fontWeight: 800,
+            letterSpacing: "0.03em",
+            textAlign: "center",
+            zIndex: 10000,
+            pointerEvents: "none",
+            animation: "winner-banner-fade 1.4s ease forwards",
+            padding: "1rem",
+          }}
+        >
+          {winnerBanner}
+        </div>
+      ) : null}
       <style>
         {`@keyframes round-banner-fade {
           0% { opacity: 0; transform: scale(0.92); }
           15% { opacity: 1; transform: scale(1); }
           70% { opacity: 1; transform: scale(1.02); }
+          100% { opacity: 0; transform: scale(1.08); }
+        }
+
+        @keyframes winner-banner-fade {
+          0% { opacity: 0; transform: scale(0.9); }
+          15% { opacity: 1; transform: scale(1); }
+          75% { opacity: 1; transform: scale(1.04); }
           100% { opacity: 0; transform: scale(1.08); }
         }`}
       </style>
