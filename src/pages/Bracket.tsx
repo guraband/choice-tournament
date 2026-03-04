@@ -46,8 +46,12 @@ export function BracketPage() {
         </div>
 
         <div className="actions">
-          <Link to="/match">매치로 돌아가기</Link>
-          <Link to="/result">결과 보기</Link>
+          <Link to="/match" className="button-link secondary">
+            매치로 돌아가기
+          </Link>
+          <Link to="/result" className="button-link secondary">
+            결과 보기
+          </Link>
         </div>
       </section>
     </main>
