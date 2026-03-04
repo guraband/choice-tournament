@@ -144,6 +144,47 @@ export function CreatePage() {
           </label>
           {topicError ? <p className="error-text">{topicError}</p> : null}
 
+          <fieldset className="stack option-fieldset">
+            <legend>라운드 옵션</legend>
+            <div className="option-row">
+              <label className="option-item">
+                <input type="radio" name="round" value="8" checked={roundOption === 8} onChange={() => setRoundOption(8)} /> 8강
+              </label>
+              <label className="option-item">
+                <input type="radio" name="round" value="16" checked={roundOption === 16} onChange={() => setRoundOption(16)} /> 16강
+              </label>
+              <label className="option-item">
+                <input type="radio" name="round" value="32" checked={roundOption === 32} onChange={() => setRoundOption(32)} /> 32강
+              </label>
+            </div>
+          </fieldset>
+
+          <fieldset className="stack option-fieldset">
+            <legend>셔플 / 시드 설정</legend>
+            <div className="option-row">
+              <label className="option-item">
+                <input
+                  type="checkbox"
+                  checked={shuffleEnabled}
+                  onChange={(event) => setShuffleEnabled(event.target.checked)}
+                />{" "}
+                셔플 사용
+              </label>
+              <label className="option-item">
+                <input type="checkbox" checked={seedFixed} onChange={(event) => setSeedFixed(event.target.checked)} /> 시드 고정
+              </label>
+              <label className="field seed-input-field">
+                <span>시드 값</span>
+                <input
+                  type="number"
+                  value={seedInput}
+                  onChange={(event) => setSeedInput(event.target.value)}
+                  disabled={!seedFixed}
+                />
+              </label>
+            </div>
+          </fieldset>
+
           <label className="field">
             <span>후보 목록 (1줄 1후보)</span>
             <textarea
@@ -160,43 +201,6 @@ export function CreatePage() {
               중복 후보가 있습니다: {duplicateNames.join(", ")} (진행은 가능하지만 구분이 어려울 수 있습니다)
             </p>
           ) : null}
-
-          <fieldset className="stack">
-            <legend>라운드 옵션</legend>
-            <label>
-              <input type="radio" name="round" value="8" checked={roundOption === 8} onChange={() => setRoundOption(8)} /> 8강
-            </label>
-            <label>
-              <input type="radio" name="round" value="16" checked={roundOption === 16} onChange={() => setRoundOption(16)} /> 16강
-            </label>
-            <label>
-              <input type="radio" name="round" value="32" checked={roundOption === 32} onChange={() => setRoundOption(32)} /> 32강
-            </label>
-          </fieldset>
-
-          <fieldset className="stack">
-            <legend>셔플 / 시드 설정</legend>
-            <label>
-              <input
-                type="checkbox"
-                checked={shuffleEnabled}
-                onChange={(event) => setShuffleEnabled(event.target.checked)}
-              />{" "}
-              셔플 사용
-            </label>
-            <label>
-              <input type="checkbox" checked={seedFixed} onChange={(event) => setSeedFixed(event.target.checked)} /> 시드 고정
-            </label>
-            <label className="field seed-input-field">
-              <span>시드 값</span>
-              <input
-                type="number"
-                value={seedInput}
-                onChange={(event) => setSeedInput(event.target.value)}
-                disabled={!seedFixed}
-              />
-            </label>
-          </fieldset>
 
           <section className="stack">
             <h2 style={{ margin: 0 }}>후보별 이미지 첨부 (선택)</h2>

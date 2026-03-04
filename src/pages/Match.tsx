@@ -108,7 +108,9 @@ export function MatchPage() {
             <button type="button" onClick={() => navigate("/bracket")} className="secondary">
               대진표 보기
             </button>
-            <Link to="/result">결과 화면</Link>
+            <Link to="/result" className="button-link secondary">
+              결과 화면
+            </Link>
           </div>
         </header>
 

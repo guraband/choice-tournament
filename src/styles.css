@@ -25,6 +25,16 @@ a:hover {
   text-decoration: underline;
 }
 
+.button-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-link:hover {
+  text-decoration: none;
+}
+
 .page {
   margin: 0 auto;
   width: min(1080px, 100%);
@@ -77,6 +87,14 @@ textarea {
   border-radius: 10px;
   padding: 0.65rem 0.75rem;
   background: #fff;
+}
+
+input[type="radio"],
+input[type="checkbox"] {
+  width: auto;
+  padding: 0;
+  border: none;
+  border-radius: 0;
 }
 
 input:focus,
@@ -148,6 +166,7 @@ button.secondary,
   padding: 2rem;
 }
 
+
 .match-choice {
   min-height: 260px;
   border: 1px solid #dbe3f4;
@@ -155,6 +174,42 @@ button.secondary,
   padding: 1rem;
   text-align: left;
   background: linear-gradient(180deg, #ffffff, #f8fbff);
+  color: #111827;
+}
+
+.option-fieldset {
+  gap: 0.75rem;
+}
+
+.option-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem 1rem;
+  align-items: center;
+}
+
+.option-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  white-space: nowrap;
+}
+
+.seed-input-field {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  width: auto;
+}
+
+.seed-input-field span {
+  white-space: nowrap;
+}
+
+.seed-input-field input {
+  width: 11ch;
+  min-width: 0;
+  padding: 0.4rem 0.5rem;
 }
 
 .preview-list {
