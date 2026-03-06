@@ -4,6 +4,8 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { getCurrentMatch, getItemMap, isTournamentComplete } from "../domain/tournament";
 import { useTournament } from "../state/TournamentContext";
 
+const INTRO_TOTAL_DURATION_MS = 2000;
+
 const ROUND_LABEL: Record<number, string> = {
   32: "32강",
   16: "16강",
@@ -21,12 +23,16 @@ export function MatchPage() {
   const { tournament, selectWinner, undo } = useTournament();
   const [roundBanner, setRoundBanner] = useState<string | null>(null);
   const [winnerBanner, setWinnerBanner] = useState<string | null>(null);
+  const [introIndex, setIntroIndex] = useState<number | null>(null);
+  const [isIntroPlaying, setIsIntroPlaying] = useState(false);
   const [isResultRedirectReady, setIsResultRedirectReady] = useState(false);
   const previousRoundRef = useRef<number | null>(null);
   const wasCompleteRef = useRef(false);
 
   useEffect(() => {
     if (!tournament) {
+      setIsIntroPlaying(false);
+      setIntroIndex(null);
       wasCompleteRef.current = false;
       setWinnerBanner(null);
       setIsResultRedirectReady(false);
@@ -62,6 +68,45 @@ export function MatchPage() {
   }, [tournament]);
 
   useEffect(() => {
+    if (!tournament || tournament.history.length > 0 || typeof window === "undefined") {
+      return;
+    }
+
+    const introSessionKey = `intro-played:${tournament.topic}:${tournament.items.map((item) => item.id).join(",")}`;
+    const isAlreadyPlayed = window.sessionStorage.getItem(introSessionKey);
+    if (isAlreadyPlayed) {
+      return;
+    }
+
+    const introLength = tournament.items.length;
+    if (introLength === 0) {
+      return;
+    }
+
+    const stepDuration = Math.max(80, Math.round(INTRO_TOTAL_DURATION_MS / introLength));
+    let index = 0;
+
+    setIsIntroPlaying(true);
+    setIntroIndex(0);
+
+    const intervalId = window.setInterval(() => {
+      index += 1;
+
+      if (index >= introLength) {
+        window.clearInterval(intervalId);
+        setIsIntroPlaying(false);
+        setIntroIndex(null);
+        window.sessionStorage.setItem(introSessionKey, "1");
+        return;
+      }
+
+      setIntroIndex(index);
+    }, stepDuration);
+
+    return () => window.clearInterval(intervalId);
+  }, [tournament]);
+
+  useEffect(() => {
     if (!tournament) {
       return;
     }
@@ -69,6 +114,10 @@ export function MatchPage() {
     const onKeyDown = (event: KeyboardEvent) => {
       const match = getCurrentMatch(tournament);
       if (!match) {
+        return;
+      }
+
+      if (isIntroPlaying) {
         return;
       }
 
@@ -86,7 +135,7 @@ export function MatchPage() {
 
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [selectWinner, tournament, undo]);
+  }, [isIntroPlaying, selectWinner, tournament, undo]);
 
   useEffect(() => {
     if (!tournament) {
@@ -167,6 +216,7 @@ export function MatchPage() {
   const totalMatchCount = tournament.items.length - 1;
   const decidedCount = tournament.history.length;
   const progress = totalMatchCount === 0 ? 0 : Math.round((decidedCount / totalMatchCount) * 100);
+  const introItem = introIndex !== null ? tournament.items[introIndex] : null;
 
   return (
     <main className="page stack">
@@ -192,7 +242,13 @@ export function MatchPage() {
 
         <section className="grid-auto">
           {[left, right].map((item, index) => (
-            <button key={item.id} type="button" onClick={() => selectWinner(item.id)} className="match-choice">
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => selectWinner(item.id)}
+              className="match-choice"
+              disabled={isIntroPlaying}
+            >
               <p className="helper-text">선택 {index + 1}</p>
               {item.imageBase64 ? (
                 <img
@@ -227,6 +283,42 @@ export function MatchPage() {
           }}
         >
           {roundBanner}
+        </div>
+      ) : null}
+      {isIntroPlaying && introItem ? (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            display: "grid",
+            placeItems: "center",
+            backgroundImage: introItem.imageBase64
+              ? `linear-gradient(rgba(0, 0, 0, 0.42), rgba(0, 0, 0, 0.62)), url(${introItem.imageBase64})`
+              : "linear-gradient(135deg, rgba(20, 26, 38, 0.95), rgba(43, 53, 74, 0.95))",
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            zIndex: 10001,
+            padding: "1rem",
+          }}
+        >
+          <h2
+            style={{
+              margin: 0,
+              color: "#fff",
+              fontSize: "clamp(2.2rem, 11vw, 6.8rem)",
+              lineHeight: 1.1,
+              fontWeight: 900,
+              letterSpacing: "0.03em",
+              textAlign: "center",
+              textShadow: "0 0.1em 0.35em rgba(0, 0, 0, 0.78)",
+              background: "rgba(0, 0, 0, 0.35)",
+              borderRadius: "0.6rem",
+              padding: "0.35em 0.55em",
+              boxShadow: "0 1.2rem 2rem rgba(0, 0, 0, 0.35)",
+            }}
+          >
+            {introItem.name}
+          </h2>
         </div>
       ) : null}
       {winnerBanner ? (
